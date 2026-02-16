@@ -69,6 +69,7 @@ fun QueenScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun QueenContent(
     queen: QueenUiModel,
@@ -82,7 +83,6 @@ private fun QueenContent(
             AppTopBar(
                 title = stringResource(R.string.queen),
                 onBackClick = onBackClick,
-                // Меняем Edit на Delete
                 action = TopBarAction.Delete(onClick = onDeleteClick)
             )
         },
@@ -111,23 +111,25 @@ private fun QueenContent(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal)
                 ) {
-                    Row(
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         InfoCard(
                             title = stringResource(R.string.label_name),
                             value = queen.name,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).fillMaxWidth(0.48f)
                         )
 
                         val hiveName = queen.hive?.name ?: stringResource(R.string.no_hive)
                         val hiveModifier = if (queen.hive != null) {
                             Modifier
                                 .weight(1f)
+                                .fillMaxWidth(0.48f)
                                 .clickable { onHiveClick() }
                         } else {
-                            Modifier.weight(1f)
+                            Modifier.weight(1f).fillMaxWidth(0.48f)
                         }
 
                         InfoCard(

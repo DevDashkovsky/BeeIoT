@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -23,7 +22,6 @@ import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListNavi
 import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListUiState
 import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListViewModel
 import com.app.mobile.ui.theme.Dimens
-import com.app.mobile.ui.theme.Alpha
 
 @Composable
 fun WorksListScreen(
@@ -131,19 +129,5 @@ private fun WorksList(
                     .clickable { onWorkClick(work.id) }
             )
         }
-    }
-}
-
-@Composable
-private fun EmptyStub(text: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha.Low)
-        )
     }
 }
