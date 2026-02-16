@@ -21,6 +21,7 @@ import com.app.mobile.presentation.ui.screens.queen.list.viewmodel.QueenListNavi
 import com.app.mobile.presentation.ui.screens.queen.list.viewmodel.QueenListUiState
 import com.app.mobile.presentation.ui.screens.queen.list.viewmodel.QueenListViewModel
 import com.app.mobile.ui.theme.Dimens
+import com.app.mobile.ui.theme.Alpha
 
 @Composable
 fun QueenListScreen(
@@ -169,7 +170,7 @@ private fun EmptyStub(text: String, modifier: Modifier = Modifier) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = Alpha.Low),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }

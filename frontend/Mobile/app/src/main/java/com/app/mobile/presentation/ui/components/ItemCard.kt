@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.app.mobile.R
 import com.app.mobile.presentation.models.queen.QueenPreviewModel
 import com.app.mobile.ui.theme.Dimens
+import com.app.mobile.ui.theme.Alpha
 
 
 val IconActive = Color.Black
@@ -307,7 +308,7 @@ fun DetailsItemCard(
             Text(
                 text = footer,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = Alpha.Disabled),
             )
         }
     }

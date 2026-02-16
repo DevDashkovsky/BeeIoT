@@ -27,6 +27,7 @@ import com.app.mobile.presentation.ui.screens.hive.list.vewmodel.HivesListNaviga
 import com.app.mobile.presentation.ui.screens.hive.list.vewmodel.HivesListUiState
 import com.app.mobile.presentation.ui.screens.hive.list.vewmodel.HivesListViewModel
 import com.app.mobile.ui.theme.Dimens
+import com.app.mobile.ui.theme.Alpha
 
 @Composable
 fun HivesListScreen(
@@ -144,7 +145,7 @@ private fun EmptyStub(text: String, modifier: Modifier = Modifier) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha.Low)
         )
     }
 }
@@ -227,7 +228,7 @@ private fun EmptyHivesListScreen(
             Text(
                 text = emptyText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = Alpha.Low),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }

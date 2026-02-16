@@ -23,6 +23,7 @@ import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListNavi
 import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListUiState
 import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListViewModel
 import com.app.mobile.ui.theme.Dimens
+import com.app.mobile.ui.theme.Alpha
 
 @Composable
 fun WorksListScreen(
@@ -142,7 +143,7 @@ private fun EmptyStub(text: String, modifier: Modifier = Modifier) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha.Low)
         )
     }
 }

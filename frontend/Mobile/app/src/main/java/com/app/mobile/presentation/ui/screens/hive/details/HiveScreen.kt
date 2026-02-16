@@ -156,28 +156,28 @@ private fun HiveContent(
                 }
             }
 
-//            Column(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal)
-//            ) {
-//                SectionHeaderWithAction(
-//                    title = stringResource(R.string.notifications),
-//                    actionText = stringResource(R.string.see_all),
-//                    onActionClick = actions.onNotificationClick
-//                )
-//
-//                if (hive.notifications.isNotEmpty()) {
-//                    Column(verticalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal)) {
-//                        hive.notifications.take(2).forEach { notification ->
-//                            DetailsItemCard(
-//                                title = stringResource(R.string.notification), // Заглушка, пока модель не обновится
-//                                description = notification.message,
-//                                footer = notification.dateTime
-//                            )
-//                        }
-//                    }
-//                }
-//            }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal)
+            ) {
+                SectionHeaderWithAction(
+                    title = stringResource(R.string.notifications),
+                    actionText = stringResource(R.string.see_all),
+                    onActionClick = actions.onNotificationClick
+                )
+
+                if (hive.notifications.isNotEmpty()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Dimens.ItemSpacingNormal)) {
+                        hive.notifications.take(2).forEach { notification ->
+                            DetailsItemCard(
+                                title = stringResource(R.string.notification), // Заглушка, пока модель не обновится
+                                description = notification.message,
+                                footer = notification.dateTime
+                            )
+                        }
+                    }
+                }
+            }
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
