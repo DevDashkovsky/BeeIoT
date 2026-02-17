@@ -10,6 +10,4 @@ data class HubEntity(
     val id: String,
     val hiveId: String?,
     val name: String,
-    val ipAddress: String,
-    val port: Int,
 )

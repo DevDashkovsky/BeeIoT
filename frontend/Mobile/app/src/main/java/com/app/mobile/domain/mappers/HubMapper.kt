@@ -9,8 +9,9 @@ fun HubEntity.toDomain() = HubDomain(
     id = this.id,
     hiveId = this.hiveId,
     name = this.name,
-    ipAddress = this.ipAddress,
-    port = this.port
+	tempSensor = this.tempSensor.toDomain(),
+	noiseSensor = this.noiseSensor.toDomain(),
+	weightSensor = this.weightSensor.toDomain()
 )
 
 fun HubDomain?.toUiModel(): HubUi {
@@ -18,8 +19,6 @@ fun HubDomain?.toUiModel(): HubUi {
         HubUi.Present(
             id = hub.id,
             name = hub.name,
-            ipAddress = hub.ipAddress,
-            port = hub.port
         )
     } ?: HubUi.Absent
 }
@@ -32,7 +31,5 @@ fun HubDomain.toPreviewModel() = HubPreviewModel(
 fun HubDomain.toEntity() = HubEntity(
     id = this.id,
     hiveId = this.hiveId,
-    name = this.name,
-    ipAddress = this.ipAddress,
-    port = this.port
+    name = this.name
 )
