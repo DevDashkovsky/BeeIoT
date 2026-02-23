@@ -25,4 +25,6 @@ interface RepositoryApi {
     suspend fun deleteAccount(): DeleteRequestResult
 
     suspend fun calcQueenCalendar(queenRequestModel: QueenRequestModel): QueenCalendarRequestResult
+
+    suspend fun getTempSensor()
 }

@@ -7,7 +7,7 @@ interface HubLocalRepository {
 
     suspend fun saveHub(hub: HubDomain)
 
-    suspend fun getHubs(): List<HubDomain>
+    suspend fun getHubs(): List<HubEntity>
 
     suspend fun getHubById(hubId: String): HubEntity?
 

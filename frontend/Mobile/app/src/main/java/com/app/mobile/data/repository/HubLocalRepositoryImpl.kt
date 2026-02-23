@@ -9,7 +9,7 @@ import com.app.mobile.domain.repository.HubLocalRepository
 class HubLocalRepositoryImpl(private val hubDao: HubDao) : HubLocalRepository {
     override suspend fun saveHub(hub: HubDomain) = hubDao.saveHub(hub.toEntity())
 
-    override suspend fun getHubs() = hubDao.getHubs().map { it.toDomain() }
+    override suspend fun getHubs() = hubDao.getHubs()
 
     override suspend fun getHubById(hubId: String) = hubDao.getHubById(hubId)
 

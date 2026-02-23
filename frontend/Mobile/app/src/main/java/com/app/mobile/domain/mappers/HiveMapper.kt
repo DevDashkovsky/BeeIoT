@@ -8,6 +8,9 @@ import com.app.mobile.domain.models.hives.HiveDomainPreview
 import com.app.mobile.domain.models.hives.HiveEditorDomain
 import com.app.mobile.domain.models.hives.HubDomain
 import com.app.mobile.domain.models.hives.queen.QueenDomain
+import com.app.mobile.domain.models.sensors.NoiseSensor
+import com.app.mobile.domain.models.sensors.TempSensor
+import com.app.mobile.domain.models.sensors.WeightSensor
 import com.app.mobile.presentation.mappers.toPreviewModel
 import com.app.mobile.presentation.mappers.toUiModel
 import com.app.mobile.presentation.models.hive.HiveEditorModel
@@ -15,10 +18,10 @@ import com.app.mobile.presentation.models.hive.HivePreview
 import com.app.mobile.presentation.models.hive.HiveUi
 
 
-fun HiveWithDetails.toDomain() = HiveDomain(
+fun HiveWithDetails.toDomain(tempSensor: TempSensor, noiseSensor: NoiseSensor, weightSensor: WeightSensor) = HiveDomain(
     id = hive.id,
     name = hive.name,
-    connectedHub = connectedHub?.toDomain(),
+    connectedHub = connectedHub?.toDomain(tempSensor, noiseSensor, weightSensor),
     notifications = notifications?.map { it.toDomain() } ?: emptyList(),
     works = works?.map { it.toDomain() } ?: emptyList(),
     queen = queen?.toDomain()
