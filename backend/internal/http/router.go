@@ -60,10 +60,6 @@ func StartServer(db interfaces.DB, sender interfaces.ConfirmSender, inMemDb inte
 			r.Put("/update", h.UpdateHive)
 			r.Delete("/delete", h.DeleteHive)
 		})
-		r.Route("/mqtt", func(r chi.Router) {
-			r.Post("/config", h.MQTTSendConfig)
-			r.Get("/data", h.GetNoiseAndTemp)
-		})
 	})
 
 	srv := &http.Server{

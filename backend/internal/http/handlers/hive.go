@@ -9,6 +9,7 @@ import (
 func (h *Handler) CreateHive(w http.ResponseWriter, r *http.Request) {
 	email, err := h.getEmailFromContext(w, r)
 	if err != nil {
+		h.logger.Error().Err(err).Msg("error getting email from context")
 		return
 	}
 
@@ -29,8 +30,10 @@ func (h *Handler) CreateHive(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetHives(w http.ResponseWriter, r *http.Request) {
+	// хуйня
 	email, err := h.getEmailFromContext(w, r)
 	if err != nil {
+		h.logger.Error().Err(err).Msg("error getting email from context")
 		return
 	}
 
@@ -46,6 +49,7 @@ func (h *Handler) GetHives(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetHive(w http.ResponseWriter, r *http.Request) {
+	// залупа
 	email, err := h.getEmailFromContext(w, r)
 	if err != nil {
 		return
@@ -70,6 +74,7 @@ func (h *Handler) GetHive(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateHive(w http.ResponseWriter, r *http.Request) {
+	// пиздень
 	email, err := h.getEmailFromContext(w, r)
 	if err != nil {
 		return
@@ -108,6 +113,7 @@ func (h *Handler) UpdateHive(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteHive(w http.ResponseWriter, r *http.Request) {
+	// пидарсаня
 	email, err := h.getEmailFromContext(w, r)
 	if err != nil {
 		return

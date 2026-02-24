@@ -1,4 +1,4 @@
-.PHONY: run run_build load_test load_test_build unit_test client_test logs stop clean help
+.PHONY: run run_build load_test load_test_build unit_test client_test logs stop clean swagger help
 
 # Загрузка переменных окружения из .env
 ifneq (,$(wildcard .env))
@@ -26,6 +26,10 @@ help: ## Показать справку по командам
 
 logs: ## Показать логи всех контейнеров
 	@$(DOCKER_COMPOSE) logs -f
+
+swagger: ## Запустить Swagger UI
+	@$(DOCKER_COMPOSE) up -d swagger-ui
+	@echo "$(GREEN)Swagger UI доступен на http://localhost:8081/swagger$(NC)"
 
 stop: ## Остановить все контейнеры
 	@$(DOCKER_COMPOSE) down
