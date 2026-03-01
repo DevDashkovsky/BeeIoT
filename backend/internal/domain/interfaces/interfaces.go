@@ -30,12 +30,19 @@ type DB interface {
 	GetEmailHiveBySensorID(ctx context.Context, sensorID string) (string, string, error)
 
 	NewTemperature(ctx context.Context, temp httpType.Temperature) error
+	GetTemperaturesSinceTime(ctx context.Context, hive dbTypes.Hive, time time.Time) ([]dbTypes.HivesTemperatureData, error)
 	GetTemperaturesSinceTimeById(
 		ctx context.Context, hiveId int, time time.Time) ([]dbTypes.HivesTemperatureData, error)
 
 	NewNoise(ctx context.Context, noise httpType.NoiseLevel) error
+	GetNoiseSinceTime(
+		ctx context.Context, email, nameHive string, time time.Time) ([]dbTypes.HivesNoiseData, error)
 	GetNoiseSinceDay(
 		ctx context.Context, id int, date time.Time) (map[time.Time][]dbTypes.HivesNoiseData, error)
+
+	NewHiveWeight(ctx context.Context, weight httpType.HiveWeight) error
+	DeleteHiveWeight(ctx context.Context, weight httpType.HiveWeight) error
+	GetWeightSinceTime(ctx context.Context, hive httpType.Hive, time time.Time) ([]dbTypes.HivesWeightData, error)
 }
 
 type InMemoryDB interface {
