@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"BeeIOT/internal/domain/models/dbTypes"
 	"BeeIOT/internal/domain/models/httpType"
 	"net/http"
 )
@@ -91,11 +90,7 @@ func (h *Handler) UpdateHive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hive := dbTypes.Hive{
-		NameHive: updateData.NewName,
-		Email:    email,
-	}
-	if err := h.db.UpdateHive(r.Context(), updateData.OldName, hive); err != nil {
+	if err := h.db.UpdateHive(r.Context(), email, updateData.OldName, updateData.NewName); err != nil {
 		h.logger.Error().Err(err).Str("email", email).
 			Str("old_name", updateData.OldName).Str("new_name", updateData.NewName).Msg("error updating hive")
 		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
