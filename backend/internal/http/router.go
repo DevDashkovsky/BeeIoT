@@ -65,6 +65,14 @@ func StartServer(db interfaces.DB, sender interfaces.ConfirmSender, inMemDb inte
 			r.Post("/config", h.MQTTSendConfig)
 			r.Get("/data", h.GetNoiseAndTemp)
 		})
+		r.Route("/telemetry", func(r chi.Router) {
+			r.Use(m.CheckAuth)
+			r.Get("/noise/get", h.GetNoiseSinceTime)
+			r.Get("/weight/get", h.GetWeightSinceTime)
+			r.Get("/temperature/get", h.GetTempratureSinceTime)
+			r.Post("/weight/set", h.SetWeight)
+			r.Delete("/weight/delete", h.DeleteWeight)
+		})
 	})
 
 	srv := &http.Server{

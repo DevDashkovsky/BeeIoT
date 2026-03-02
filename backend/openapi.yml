@@ -371,11 +371,11 @@ components:
           description: Название улья
           example: Улей-1
         time:
-          type: integer
-          format: int64
-          description: Unix timestamp
-          example: 1708704000
-        value:
+          type: string
+          format: date-time
+          description: Время измерения в формате RFC3339
+          example: "2024-02-23T12:00:00Z"
+        weight:
           type: number
           format: float64
           description: Значение веса
@@ -383,7 +383,7 @@ components:
       required:
         - hive
         - time
-        - value
+        - weight
 
     DeleteWeightRequest:
       type: object
@@ -393,10 +393,10 @@ components:
           description: Название улья
           example: Улей-1
         time:
-          type: integer
-          format: int64
-          description: Unix timestamp записи для удаления
-          example: 1708704000
+          type: string
+          format: date-time
+          description: Время записи для удаления в формате RFC3339
+          example: "2024-02-23T12:00:00Z"
       required:
         - hive
         - time
