@@ -48,6 +48,7 @@ func StartServer(db interfaces.DB, sender interfaces.ConfirmSender, inMemDb inte
 			r.Post("/refresh/token", h.RefreshToken)
 			r.With(m.CheckAuth).Delete("/delete/user", h.DeleteUser)
 			r.With(m.CheckAuth).Delete("/logout", h.Logout)
+			r.With(m.CheckAuth).Post("/change/name", h.ChangeName)
 		})
 		r.Route("/calcQueen", func(r chi.Router) {
 			r.With(m.CheckAuth).Post("/calc", h.QueenCalculator)

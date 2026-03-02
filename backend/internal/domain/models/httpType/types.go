@@ -26,6 +26,10 @@ type ChangePassword struct {
 	Password string `json:"password"`
 }
 
+type ChangeName struct {
+	Name string `json:"name"`
+}
+
 type NotificationData struct {
 	Text     string `json:"text"`
 	NameHive string `json:"name"`
