@@ -1,9 +1,31 @@
 package handlers
 
 import (
+	"BeeIOT/internal/domain/models/dbTypes"
 	"BeeIOT/internal/domain/models/httpType"
 	"net/http"
+	"time"
 )
+
+func dbHiveToHTTP(h dbTypes.Hive) httpType.HiveResponse {
+	return httpType.HiveResponse{
+		Id:              h.Id,
+		NameHive:        h.NameHive,
+		Email:           h.Email,
+		DateTemperature: h.DateTemperature.Format(time.RFC3339),
+		DateNoise:       h.DateNoise.Format(time.RFC3339),
+		SensorID:        h.SensorID,
+		Status:          h.Status,
+	}
+}
+
+func dbHivesToHTTP(hives []dbTypes.Hive) []httpType.HiveResponse {
+	result := make([]httpType.HiveResponse, 0, len(hives))
+	for _, h := range hives {
+		result = append(result, dbHiveToHTTP(h))
+	}
+	return result
+}
 
 func (h *Handler) CreateHive(w http.ResponseWriter, r *http.Request) {
 	email, err := h.getEmailFromContext(w, r)
@@ -41,7 +63,7 @@ func (h *Handler) GetHives(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Debug().Str("email", email).Int("hive_count", len(hives)).Msg("hives retrieved successfully")
 
-	h.writeBodyJSON(w, "Список ульев успешно получен", hives)
+	h.writeBodyJSON(w, "Список ульев успешно получен", dbHivesToHTTP(hives))
 }
 
 func (h *Handler) GetHive(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +87,7 @@ func (h *Handler) GetHive(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Debug().Str("email", email).Str("hive_name", hiveName).Msg("hive retrieved")
 
-	h.writeBodyJSON(w, "Улей успешно получен", hive)
+	h.writeBodyJSON(w, "Улей успешно получен", dbHiveToHTTP(hive))
 }
 
 func (h *Handler) UpdateHive(w http.ResponseWriter, r *http.Request) {
