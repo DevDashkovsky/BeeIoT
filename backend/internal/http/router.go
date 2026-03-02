@@ -69,7 +69,7 @@ func StartServer(db interfaces.DB, sender interfaces.ConfirmSender, inMemDb inte
 			r.Use(m.CheckAuth)
 			r.Get("/noise/get", h.GetNoiseSinceTime)
 			r.Get("/weight/get", h.GetWeightSinceTime)
-			r.Get("/temperature/get", h.GetTempratureSinceTime)
+			r.Get("/temperature/get", h.GetTemperatureSinceTime)
 			r.Post("/weight/set", h.SetHiveWeight)
 			r.Delete("/weight/delete", h.DeleteHiveWeight)
 		})

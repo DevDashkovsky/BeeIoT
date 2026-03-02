@@ -93,3 +93,13 @@ type NoiseLevelResponse struct {
 	Date  time.Time `json:"date"`
 	Level float64   `json:"level"`
 }
+
+type WeightResponse struct {
+	Date   time.Time `json:"date"`
+	Weight float64   `json:"weight"`
+}
+
+type TemperatureResponse struct {
+	Date        time.Time `json:"date"`
+	Temperature float64   `json:"temperature"`
+}
