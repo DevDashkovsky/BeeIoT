@@ -46,8 +46,6 @@ type DB interface {
 }
 
 type InMemoryDB interface {
-	SetNotification(ctx context.Context, email string, note httpType.NotificationData) error
-	GetNotifications(ctx context.Context, email string) ([]httpType.NotificationData, error)
 	SetJwt(ctx context.Context, email, token string) error
 	ExistJwt(ctx context.Context, email, jwtId string) (bool, error)
 	DeleteJwt(ctx context.Context, email, jwtId string) error
