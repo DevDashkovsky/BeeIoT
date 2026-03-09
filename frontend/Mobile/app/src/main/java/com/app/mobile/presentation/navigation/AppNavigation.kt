@@ -56,6 +56,12 @@ import com.app.mobile.presentation.ui.screens.works.editor.viewmodel.WorksEditor
 import com.app.mobile.presentation.ui.screens.works.list.WorksListRoute
 import com.app.mobile.presentation.ui.screens.works.list.WorksListScreen
 import com.app.mobile.presentation.ui.screens.works.list.viewmodel.WorksListViewModel
+import com.app.mobile.presentation.ui.screens.notification.list.NotificationListRoute
+import com.app.mobile.presentation.ui.screens.notification.list.NotificationListScreen
+import com.app.mobile.presentation.ui.screens.notification.list.viewmodel.NotificationListViewModel
+import com.app.mobile.presentation.ui.screens.notification.details.NotificationDetailRoute
+import com.app.mobile.presentation.ui.screens.notification.details.NotificationDetailScreen
+import com.app.mobile.presentation.ui.screens.notification.details.viewmodel.NotificationDetailViewModel
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -140,7 +146,7 @@ fun AppNavigation(
                 hiveViewModel,
                 onQueenClick = { queenId -> navController.navigate(QueenRoute(queenId)) },
                 onWorksClick = { navController.navigate(WorksListRoute(it)) },
-                onNotificationsClick = { TODO("NotificationsRoute") },
+                onNotificationsClick = { navController.navigate(NotificationListRoute) },
                 onTemperatureClick = { TODO("TemperatureRoute") },
                 onNoiseClick = { TODO("NoiseRoute") },
                 onWeightClick = { TODO("WeightRoute") },
@@ -219,6 +225,27 @@ fun AppNavigation(
             val worksEditorViewModel: WorksEditorViewModel = koinViewModel()
             WorksEditorScreen(
                 worksEditorViewModel,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        animatedComposable<NotificationListRoute> {
+            val notificationListViewModel: NotificationListViewModel = koinViewModel()
+            NotificationListScreen(
+                viewModel = notificationListViewModel,
+                onNotificationClick = { notificationId ->
+                    navController.navigate(NotificationDetailRoute(notificationId))
+                },
+                onQueenClick = { queenId ->
+                    navController.navigate(QueenRoute(queenId))
+                }
+            )
+        }
+
+        animatedComposable<NotificationDetailRoute> {
+            val notificationDetailViewModel: NotificationDetailViewModel = koinViewModel()
+            NotificationDetailScreen(
+                viewModel = notificationDetailViewModel,
                 onBackClick = { navController.popBackStack() }
             )
         }

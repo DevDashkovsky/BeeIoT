@@ -120,4 +120,9 @@
 	<string name="switch_to_dark_theme">Переключить на тёмную тему</string>
 	<string name="switch_to_light_theme">Переключить на дневную тему</string>
 
+	<!-- Notification List -->
+	<string name="nearest_queens_section">Ближайшие матки</string>
+	<string name="delete_all">Удалить все</string>
+	<string name="empty_notifications">Уведомлений нет</string>
+
 </resources>

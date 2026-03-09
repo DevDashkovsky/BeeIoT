@@ -28,12 +28,13 @@ fun SectionTitle(title: String) {
 fun SectionHeaderWithAction(
     title: String,
     actionText: String,
-    onActionClick: () -> Unit
+    onActionClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         SectionTitle(title)
         Text(

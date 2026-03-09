@@ -210,3 +210,36 @@ fun SelectorTopBar(
         }
     }
 }
+
+@Composable
+fun NotificationListTopBar(
+    title: String,
+    actionText: String,
+    onActionClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BaseTopBarContainer(
+        hasBackground = false,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Dimens.ScreenContentPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = actionText,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable { onActionClick() }
+            )
+        }
+    }
+}

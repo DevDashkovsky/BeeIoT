@@ -30,6 +30,8 @@ import com.app.mobile.di.screens.registrationModule
 import com.app.mobile.di.screens.settingsModule
 import com.app.mobile.di.screens.workEditorModule
 import com.app.mobile.di.screens.workListModule
+import com.app.mobile.di.screens.notificationListModule
+import com.app.mobile.di.screens.notificationDetailModule
 import com.app.mobile.di.sessionModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -74,6 +76,8 @@ class MobileApp : Application() {
 				workLocalRepositoryModule,
 				workEditorModule,
 				workListModule,
+				notificationListModule,
+				notificationDetailModule,
 				notificationsModule,
 				themeModule,
 				mainModule,

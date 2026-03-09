@@ -37,6 +37,7 @@ import com.app.mobile.R
 import com.app.mobile.presentation.ui.modifiers.styleShadow
 import com.app.mobile.presentation.ui.screens.aboutapp.AboutAppRoute
 import com.app.mobile.presentation.ui.screens.hive.list.HivesListRoute
+import com.app.mobile.presentation.ui.screens.notification.list.NotificationListRoute
 import com.app.mobile.presentation.ui.screens.queen.list.QueenListRoute
 import com.app.mobile.presentation.ui.screens.settings.SettingsRoute
 import com.app.mobile.ui.theme.Dimens
@@ -57,7 +58,7 @@ fun AppBottomBar(
         BottomTabItem(
             stringResource(R.string.home),
             ImageVector.vectorResource(R.drawable.ic_home),
-            AboutAppRoute
+            NotificationListRoute
         ),
 
         BottomTabItem(
