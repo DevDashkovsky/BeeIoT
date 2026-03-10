@@ -35,6 +35,8 @@ tags:
     description: Получение и управление телеметрическими данными (шум, вес, температура)
   - name: CalcQueen
     description: Калькулятор фаз развития пчелиной матки
+  - name: MQTT
+    description: Управление датчиками через MQTT (конфигурация, health check)
 
 components:
   securitySchemes:
@@ -153,12 +155,31 @@ components:
       required:
         - name
 
+    UpdateFcmToken:
+      type: object
+      properties:
+        token:
+          type: string
+          example: dGVzdC1mY20tdG9rZW4...
+          description: Firebase Cloud Messaging токен устройства
+        device:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+          description: UUID устройства
+      required:
+        - token
+        - device
+
     CreateHive:
       type: object
       properties:
         name:
           type: string
           example: Улей-1
+        sensor:
+          type: string
+          example: sensor-001
+          description: Идентификатор датчика для привязки к улью (опционально). Если датчик не найден у пользователя, улей создаётся без привязки.
       required:
         - name
 
@@ -357,7 +378,7 @@ components:
         since:
           type: integer
           format: int64
-          description: Unix timestamp начала выборки
+          description: "Unix timestamp начала выборки (в секундах, не миллисекундах)"
           example: 1708704000
       required:
         - hive
@@ -400,6 +421,101 @@ components:
       required:
         - hive
         - time
+
+    DeviceConfigRequest:
+      type: object
+      properties:
+        sensor:
+          type: string
+          example: sensor-001
+          description: Уникальное имя датчика
+        config:
+          type: object
+          properties:
+            sampling_rate_noise:
+              type: integer
+              description: Частота сбора данных о шуме (секунды). -1 — не установлена
+              example: 60
+            sampling_rate_temperature:
+              type: integer
+              description: Частота сбора данных о температуре (секунды). -1 — не установлена
+              example: 60
+            restart_device:
+              type: boolean
+              description: Перезагрузить устройство
+              example: false
+            health_check:
+              type: boolean
+              description: Запросить проверку состояния
+              example: false
+            frequency_status:
+              type: integer
+              description: Частота отправки статуса (секунды). -1 — не установлена
+              example: 10000
+            delete_device:
+              type: boolean
+              description: Удалить устройство
+              example: false
+      required:
+        - sensor
+
+    HealthCheckRequest:
+      type: object
+      properties:
+        sensor:
+          type: string
+          example: sensor-001
+          description: Уникальное имя датчика
+      required:
+        - sensor
+
+    DeviceStatus:
+      type: object
+      description: Статус датчика, полученный в ответ на health check
+      properties:
+        battery_level:
+          type: integer
+          description: Уровень заряда батареи (0–100). -1 означает отсутствие данных
+          example: 85
+        signal_strength:
+          type: integer
+          description: Уровень сигнала (0–100). -1 означает отсутствие данных
+          example: 72
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp статуса (в секундах)
+          example: 1708704000
+        errors:
+          type: array
+          items:
+            type: string
+          description: Список ошибок датчика (пустой, если ошибок нет)
+          example: []
+
+    LastSensorReading:
+      type: object
+      properties:
+        temperature:
+          type: number
+          format: float64
+          description: Температура в цельсиях. -1 означает отсутствие данных
+          example: 34.5
+        temperature_time:
+          type: integer
+          format: int64
+          description: Unix timestamp измерения температуры
+          example: 1708704000
+        noise:
+          type: number
+          format: float64
+          description: Уровень шума в децибелах. -1 означает отсутствие данных
+          example: 42.0
+        noise_time:
+          type: integer
+          format: int64
+          description: Unix timestamp измерения шума
+          example: 1708704000
 
 paths:
   # ==================== AUTH ====================
@@ -804,6 +920,65 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /auth/fcm/update:
+    post:
+      tags: [Auth]
+      summary: Обновление FCM токена 🔒
+      description: |
+        **Требует middleware `CheckAuth`.**
+
+        Сохраняет или обновляет Firebase Cloud Messaging токен для устройства пользователя.
+        Используется для отправки push-уведомлений.
+        Email извлекается из контекста (установлен middleware).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFcmToken'
+      responses:
+        '200':
+          description: FCM токен обновлён
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - properties:
+                      message:
+                        example: FCM токен успешно обновлен
+                      data:
+                        type: 'null'
+                        example: null
+        '400':
+          description: Пустой токен или устройство
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum:
+                  - FCM токен не должен быть пустым
+                  - uuid устройства не должно быть пустым
+        '401':
+          description: Не авторизован (middleware CheckAuth)
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum:
+                  - Отсутствует заголовок авторизации
+                  - Неверный формат заголовка авторизации
+                  - Пустой токен авторизации
+                  - Срок действия токена истек или он невалидный
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   # ==================== HIVE ====================
   /hive/create:
     post:
@@ -813,6 +988,8 @@ paths:
         **Требует middleware `CheckAuth`** (применён на весь роут `/hive`).
 
         Создаёт новый улей для текущего пользователя.
+        Опционально можно указать имя датчика для привязки к улью.
+        Если датчик не найден у пользователя, улей создаётся без привязки.
       security:
         - BearerAuth: []
       requestBody:
@@ -863,9 +1040,21 @@ paths:
       description: |
         **Требует middleware `CheckAuth`** (применён на весь роут `/hive`).
 
-        Возвращает все ульи текущего пользователя.
+        Возвращает ульи текущего пользователя.
+        Можно фильтровать по статусу активности через query-параметр `active`.
       security:
         - BearerAuth: []
+      parameters:
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: |
+            Фильтр по статусу:
+            - `true` — только активные ульи
+            - `false` — только архивные ульи
+            - не указан — все ульи
       responses:
         '200':
           description: Список ульев
@@ -917,6 +1106,16 @@ paths:
             type: string
             example: Улей-1
           description: Название улья
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: |
+            Фильтр по статусу:
+            - `true` — вернуть только если улей активен
+            - `false` — вернуть только если улей в архиве
+            - не указан — вернуть в любом статусе
       responses:
         '200':
           description: Данные улья
@@ -1089,14 +1288,15 @@ paths:
             type: string
           description: Название улья
           example: Улей-1
-        - name: period
+        - name: since
           in: query
           required: false
           schema:
-            type: string
-            default: day
-            enum: [day, week, month]
-          description: Период агрегации (по умолчанию day)
+            type: integer
+            format: int64
+            example: 1708704000
+          description: |
+            Unix timestamp начала выборки (в секундах, не миллисекундах). Если не указан — последние 24 часа.
       responses:
         '200':
           description: Данные шума получены
@@ -1151,14 +1351,15 @@ paths:
             type: string
           description: Название улья
           example: Улей-1
-        - name: period
+        - name: since
           in: query
           required: false
           schema:
-            type: string
-            default: day
-            enum: [day, week, month]
-          description: Период агрегации (по умолчанию day)
+            type: integer
+            format: int64
+            example: 1708704000
+          description: |
+            Unix timestamp начала выборки (в секундах, не миллисекундах). Если не указан — последние 24 часа.
       responses:
         '200':
           description: Данные веса получены
@@ -1213,14 +1414,15 @@ paths:
             type: string
           description: Название улья
           example: Улей-1
-        - name: period
+        - name: since
           in: query
           required: false
           schema:
-            type: string
-            default: day
-            enum: [day, week, month]
-          description: Период агрегации (по умолчанию day)
+            type: integer
+            format: int64
+            example: 1708704000
+          description: |
+            Unix timestamp начала выборки (в секундах, не миллисекундах). Если не указан — последние 24 часа.
       responses:
         '200':
           description: Данные температуры получены
@@ -1249,6 +1451,68 @@ paths:
             text/plain:
               schema:
                 type: string
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /telemetry/sensor/last:
+    get:
+      tags: [Telemetry]
+      summary: Последние данные датчика 🔒
+      description: |
+        **Требует middleware `CheckAuth`.**
+
+        Возвращает последние показания датчика, привязанного к улью.
+        Данные хранятся в Redis и обновляются при каждом получении данных от датчика по MQTT.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Название улья
+          example: Улей-1
+      responses:
+        '200':
+          description: Последние данные датчика получены
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - properties:
+                      message:
+                        example: Последние данные датчика получены
+                      data:
+                        $ref: '#/components/schemas/LastSensorReading'
+        '400':
+          description: Параметр name не указан
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Параметр "name" обязателен
+        '401':
+          description: Не авторизован (middleware CheckAuth)
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Улей, датчик или данные не найдены
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum:
+                  - Улей не найден
+                  - К данному улью не привязан датчик
+                  - Нет данных от датчика
         '500':
           description: Внутренняя ошибка сервера
           content:
@@ -1347,6 +1611,99 @@ paths:
             text/plain:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== MQTT ====================
+  /mqtt/config:
+    post:
+      tags: [MQTT]
+      summary: Отправка конфигурации на датчик 🔒
+      description: |
+        **Требует middleware `CheckAuth`.**
+
+        Отправляет конфигурацию на датчик через MQTT (топик `/device/{sensor}/config`, QoS 1).
+        Позволяет задать частоту сбора данных, перезагрузку устройства и другие параметры.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceConfigRequest'
+      responses:
+        '200':
+          description: Конфигурация отправлена
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - properties:
+                      message:
+                        example: Конфигурация успешно отправлена
+        '400':
+          description: Имя датчика не указано
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Имя датчика обязательно
+        '500':
+          description: Ошибка отправки конфигурации
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Ошибка отправки конфигурации
+
+  /mqtt/health:
+    post:
+      tags: [MQTT]
+      summary: Отправка health check на датчик 🔒
+      description: |
+        **Требует middleware `CheckAuth`.**
+
+        Отправляет запрос на проверку состояния (health check) датчика через MQTT (топик `/device/{sensor}/config`, QoS 1).
+        Отправляет конфигурацию с `health_check=true`, затем ожидает ответ от датчика (до 4 секунд).
+
+        Публикация MQTT-сообщения выполняется в фоне (fire-and-forget): даже если HTTP-запрос
+        истечёт по таймауту, сообщение останется в очереди MQTT-клиента и будет доставлено
+        датчику при выходе из гибернации (QoS 1).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthCheckRequest'
+      responses:
+        '200':
+          description: Датчик ответил — статус получен
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - properties:
+                      message:
+                        example: Health check выполнен успешно
+                      data:
+                        $ref: '#/components/schemas/DeviceStatus'
+        '400':
+          description: Имя датчика не указано
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Имя датчика обязательно
+        '504':
+          description: Датчик не ответил в отведённое время (4 с)
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Датчик не ответил на health check в отведённое время
 
   # ==================== CALCQUEEN ====================
   /calcQueen/calc:
