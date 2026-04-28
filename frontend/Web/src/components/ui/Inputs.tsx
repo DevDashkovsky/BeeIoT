@@ -1,6 +1,14 @@
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Box, ButtonBase, FormHelperText, IconButton, InputBase, Typography } from '@mui/material';
+import {
+  Box,
+  ButtonBase,
+  FormHelperText,
+  IconButton,
+  InputBase,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import { useState, type ChangeEvent, type ReactNode } from 'react';
 
 type UnderlineTextFieldProps = {
@@ -45,47 +53,61 @@ export const UnderlineTextField = ({
   autoComplete,
   type = 'text',
   endAdornment,
-}: UnderlineTextFieldProps) => (
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 1,
-      paddingX: 1,
-      paddingY: 2,
-      borderBottom: '2px solid',
-      borderColor: error ? 'error.main' : 'primary.main',
-      transition: 'border-color 100ms ease',
-      '&:focus-within': {
-        borderColor: error ? 'error.main' : 'primary.main',
-      },
-      ...(disabled && {
-        opacity: 0.6,
-      }),
-    }}
-  >
-    <InputBase
-      fullWidth
-      value={value}
-      onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
-      placeholder={placeholder}
-      disabled={disabled}
-      name={name}
-      autoComplete={autoComplete}
-      type={type}
+}: UnderlineTextFieldProps) => {
+  const theme = useTheme();
+  const inputTypography = theme.typography.body2;
+
+  return (
+    <Box
       sx={{
-        fontSize: 16,
-        lineHeight: 1.5,
-        color: 'text.primary',
-        '& .MuiInputBase-input::placeholder': {
-          color: 'text.primary',
-          opacity: 0.5,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        minHeight: 54,
+        paddingX: 1,
+        paddingY: 1.5,
+        borderBottom: '2px solid',
+        borderColor: error ? 'error.main' : 'primary.main',
+        transition: 'border-color 100ms ease',
+        '&:focus-within': {
+          borderColor: error ? 'error.main' : 'primary.main',
         },
+        ...(disabled && {
+          opacity: 0.6,
+        }),
       }}
-    />
-    {endAdornment ? <Box sx={{ display: 'flex', alignItems: 'center' }}>{endAdornment}</Box> : null}
-  </Box>
-);
+    >
+      <InputBase
+        fullWidth
+        value={value}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        name={name}
+        autoComplete={autoComplete}
+        type={type}
+        sx={{
+          color: 'text.primary',
+          '& .MuiInputBase-input': {
+            fontSize: inputTypography.fontSize,
+            lineHeight: inputTypography.lineHeight,
+            fontWeight: inputTypography.fontWeight,
+            fontFamily: inputTypography.fontFamily,
+            padding: 0,
+          },
+          '& .MuiInputBase-input::placeholder': {
+            color: 'text.primary',
+            opacity: 0.5,
+            fontSize: inputTypography.fontSize,
+          },
+        }}
+      />
+      {endAdornment ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>{endAdornment}</Box>
+      ) : null}
+    </Box>
+  );
+};
 
 export const ValidatedTextField = ({
   errorText,
@@ -123,6 +145,7 @@ export const PasswordTextField = ({
       endAdornment={
         <IconButton
           size="small"
+          edge="end"
           onClick={() => setVisible((current) => !current)}
           aria-label={visible ? 'Hide password' : 'Show password'}
           sx={{ color: 'text.primary', opacity: 0.6 }}
