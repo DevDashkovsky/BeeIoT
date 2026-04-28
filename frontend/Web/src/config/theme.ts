@@ -59,22 +59,22 @@ const baseTheme = createTheme({
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
 
-    h1: { fontSize: 64, fontWeight: 900, lineHeight: '72px', letterSpacing: '-0.2px' },
-    h2: { fontSize: 48, fontWeight: 900, lineHeight: '56px', letterSpacing: '-0.2px' },
-    h3: { fontSize: 36, fontWeight: 700, lineHeight: '44px', letterSpacing: '-0.1px' },
-    h4: { fontSize: 32, fontWeight: 500, lineHeight: '40px' },
-    h5: { fontSize: 24, fontWeight: 600, lineHeight: '32px' },
-    h6: { fontSize: 20, fontWeight: 500, lineHeight: '28px' },
+    h1: { fontSize: 64, fontWeight: 900, lineHeight: 1.125, letterSpacing: '-0.2px' },
+    h2: { fontSize: 48, fontWeight: 900, lineHeight: 1.1667, letterSpacing: '-0.2px' },
+    h3: { fontSize: 36, fontWeight: 700, lineHeight: 1.2222, letterSpacing: '-0.1px' },
+    h4: { fontSize: 32, fontWeight: 500, lineHeight: 1.25 },
+    h5: { fontSize: 24, fontWeight: 600, lineHeight: 1.3333 },
+    h6: { fontSize: 20, fontWeight: 500, lineHeight: 1.4 },
 
-    subtitle1: { fontSize: 16, fontWeight: 500, lineHeight: '24px' },
-    subtitle2: { fontSize: 16, fontWeight: 500, lineHeight: '24px' },
+    subtitle1: { fontSize: 16, fontWeight: 500, lineHeight: 1.5 },
+    subtitle2: { fontSize: 16, fontWeight: 500, lineHeight: 1.5 },
 
-    body1: { fontSize: 20, fontWeight: 400, lineHeight: '30px' },
-    body2: { fontSize: 16, fontWeight: 400, lineHeight: '24px' },
-    caption: { fontSize: 12, fontWeight: 400, lineHeight: '18px' },
+    body1: { fontSize: 20, fontWeight: 400, lineHeight: 1.5 },
+    body2: { fontSize: 16, fontWeight: 400, lineHeight: 1.5 },
+    caption: { fontSize: 12, fontWeight: 400, lineHeight: 1.5 },
 
-    button: { fontSize: 16, fontWeight: 600, lineHeight: '24px', textTransform: 'none' },
-    overline: { fontSize: 12, fontWeight: 400, lineHeight: '16px' },
+    button: { fontSize: 16, fontWeight: 600, lineHeight: 1.5, textTransform: 'none' },
+    overline: { fontSize: 12, fontWeight: 400, lineHeight: 1.3333 },
   },
 
   components: {
@@ -120,7 +120,7 @@ const baseTheme = createTheme({
         root: {
           fontSize: 14,
           fontWeight: 400,
-          lineHeight: '1.4',
+          lineHeight: 1.4,
           transform: 'none',
           color: colors.textSecondary,
           '&.Mui-focused': { color: colors.textSecondary },
@@ -137,7 +137,7 @@ const baseTheme = createTheme({
           backgroundColor: colors.bgPrimary,
           fontSize: 16,
           fontWeight: 400,
-          lineHeight: '24px',
+          lineHeight: 1.5,
           '& input::placeholder, & textarea::placeholder': {
             color: colors.textTertiary,
             opacity: 1,
@@ -177,7 +177,7 @@ const baseTheme = createTheme({
         root: {
           fontSize: 12,
           fontWeight: 400,
-          lineHeight: '18px',
+          lineHeight: 1.5,
           color: colors.textTertiary,
           '&.Mui-error': {
             color: colors.error,

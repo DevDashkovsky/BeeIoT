@@ -2,14 +2,13 @@ import { createBrowserRouter, Navigate, redirect } from 'react-router-dom';
 
 import App from '@/App';
 import AuthPage from '@/App/pages/AuthPage';
+import NotFoundPage from '@/App/pages/NotFoundPage';
 import FullScreenLoader from '@/components/FullScreenLoader/FullScreenLoader';
 import RouterErrorBoundary from '@/components/RouterErrorBoundary/RouterErrorBoundary';
+import { sessionQueryOptions } from '@/hooks/queries/useSessionQuery';
 import { useAuthStore } from '@/store/useAuthStore';
 
 import { queryClient } from './queryClient';
-
-import NotFoundPage from '@/App/pages/NotFoundPage';
-import { sessionQueryOptions } from '@/hooks/queries/useSessionQuery';
 
 export const router = createBrowserRouter([
   {
