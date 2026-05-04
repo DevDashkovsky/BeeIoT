@@ -1,14 +1,20 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert as DescAlert, Box as DescBox, Paper as DescPaper, Snackbar } from '@mui/material';
 import { useState as descUseState } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
 
-import FieldBlock from './FieldBlock';
 import PageHeader, { type PageHeaderStatus } from '../../components/PageHeader';
 
-type DescriptionData = {
-  title: string;
-  short: string;
-  full: string;
-};
+import FieldBlock from './FieldBlock';
+
+const descriptionSchema = z.object({
+  title: z.string().min(1, 'Введите заголовок').max(80, 'Максимум 80 символов'),
+  short: z.string().min(1, 'Введите краткое описание').max(160, 'Максимум 160 символов'),
+  full: z.string().min(1, 'Введите полное описание').max(2000, 'Максимум 2000 символов'),
+});
+
+type DescriptionData = z.infer<typeof descriptionSchema>;
 
 type SnackbarState = null | {
   severity: 'success' | 'error' | 'info' | 'warning';
@@ -24,24 +30,32 @@ const DEFAULT_DESCRIPTION: DescriptionData = {
 };
 
 const DescriptionPage = () => {
-  const [data, setData] = descUseState<DescriptionData>(DEFAULT_DESCRIPTION);
-  const [initial, setInitial] = descUseState<DescriptionData>(DEFAULT_DESCRIPTION);
   const [saving, setSaving] = descUseState(false);
   const [snack, setSnack] = descUseState<SnackbarState>(null);
 
-  const dirty = JSON.stringify(data) !== JSON.stringify(initial);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm<DescriptionData>({
+    resolver: zodResolver(descriptionSchema),
+    defaultValues: DEFAULT_DESCRIPTION,
+    mode: 'onBlur',
+  });
 
-  const update = (key: keyof DescriptionData, value: string) =>
-    setData((prev) => ({ ...prev, [key]: value }));
+  const titleValue = useWatch({ control, name: 'title' });
+  const shortValue = useWatch({ control, name: 'short' });
+  const fullValue = useWatch({ control, name: 'full' });
 
-  const handleSave = () => {
+  const handleSave = handleSubmit((data) => {
     setSaving(true);
     setTimeout(() => {
-      setInitial(data);
+      reset(data);
       setSaving(false);
       setSnack({ severity: 'success', text: 'Описание сохранено' });
     }, 600);
-  };
+  });
 
   const status: PageHeaderStatus = {
     label: 'Опубликовано',
@@ -57,7 +71,7 @@ const DescriptionPage = () => {
         status={status}
         onSave={handleSave}
         saving={saving}
-        dirty={dirty}
+        dirty={isDirty}
       />
 
       <DescPaper
@@ -71,31 +85,52 @@ const DescriptionPage = () => {
         }}
       >
         <DescBox sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <FieldBlock
-            label="Заголовок"
-            hint="Отображается крупным шрифтом в шапке экрана «О приложении»"
-            value={data.title}
-            onChange={(value) => update('title', value)}
-            counter={[data.title.length, 80]}
-            maxLength={80}
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => (
+              <FieldBlock
+                label="Заголовок"
+                hint="Отображается крупным шрифтом в шапке экрана «О приложении»"
+                value={field.value}
+                onChange={field.onChange}
+                counter={[titleValue.length, 80]}
+                maxLength={80}
+                errorText={errors.title?.message}
+              />
+            )}
           />
-          <FieldBlock
-            label="Краткое описание"
-            hint="Одна строка под заголовком — суть приложения"
-            value={data.short}
-            onChange={(value) => update('short', value)}
-            counter={[data.short.length, 160]}
-            maxLength={160}
+          <Controller
+            name="short"
+            control={control}
+            render={({ field }) => (
+              <FieldBlock
+                label="Краткое описание"
+                hint="Одна строка под заголовком — суть приложения"
+                value={field.value}
+                onChange={field.onChange}
+                counter={[shortValue.length, 160]}
+                maxLength={160}
+                errorText={errors.short?.message}
+              />
+            )}
           />
-          <FieldBlock
-            label="Полное описание"
-            hint="Многострочный текст. Поддерживаются абзацы (Enter)"
-            value={data.full}
-            onChange={(value) => update('full', value)}
-            multiline
-            rows={8}
-            counter={[data.full.length, 2000]}
-            maxLength={2000}
+          <Controller
+            name="full"
+            control={control}
+            render={({ field }) => (
+              <FieldBlock
+                label="Полное описание"
+                hint="Многострочный текст. Поддерживаются абзацы (Enter)"
+                value={field.value}
+                onChange={field.onChange}
+                multiline
+                rows={8}
+                counter={[fullValue.length, 2000]}
+                maxLength={2000}
+                errorText={errors.full?.message}
+              />
+            )}
           />
         </DescBox>
       </DescPaper>

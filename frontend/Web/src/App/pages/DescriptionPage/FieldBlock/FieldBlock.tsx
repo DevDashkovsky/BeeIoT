@@ -3,6 +3,8 @@ import {
   TextField as DescTextField,
   Typography as DescTypography,
 } from '@mui/material';
+import { forwardRef, type ElementType, type InputHTMLAttributes } from 'react';
+import { IMaskInput, type IMaskInputProps } from 'react-imask';
 
 type FieldBlockProps = {
   label: string;
@@ -13,7 +15,31 @@ type FieldBlockProps = {
   rows?: number;
   counter?: [number, number];
   maxLength?: number;
+  placeholder?: string;
+  errorText?: string;
+  mask?: IMaskInputProps['mask'];
+  unmask?: IMaskInputProps['unmask'];
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
 };
+
+type MaskedInputProps = IMaskInputProps<HTMLInputElement> & {
+  onChange: (event: { target: { value: string } }) => void;
+};
+
+// Adapter for MUI TextField inputComponent.
+const MaskedInput = forwardRef<HTMLInputElement, MaskedInputProps>(function MaskedInput(
+  { onChange, ...rest },
+  ref
+) {
+  return (
+    <IMaskInput
+      {...rest}
+      inputRef={ref}
+      overwrite
+      onAccept={(value) => onChange({ target: { value: String(value) } })}
+    />
+  );
+});
 
 const FieldBlock = ({
   label,
@@ -24,6 +50,11 @@ const FieldBlock = ({
   rows,
   counter,
   maxLength,
+  placeholder,
+  errorText,
+  mask,
+  unmask,
+  inputMode,
 }: FieldBlockProps) => (
   <DescBox>
     <DescBox
@@ -47,8 +78,32 @@ const FieldBlock = ({
       rows={rows}
       value={value}
       onChange={(event) => onChange(event.target.value.slice(0, maxLength ?? Infinity))}
+      placeholder={placeholder}
+      error={Boolean(errorText)}
+      slotProps={{
+        input: {
+          ...(mask
+            ? {
+                inputComponent: MaskedInput as ElementType,
+                inputProps: {
+                  mask,
+                  unmask,
+                  inputMode: inputMode ?? 'numeric',
+                },
+              }
+            : {
+                inputProps: {
+                  inputMode,
+                },
+              }),
+        },
+      }}
     />
-    {hint ? (
+    {errorText ? (
+      <DescTypography sx={{ fontSize: 12, color: 'rgb(192,0,0)', mt: 0.75 }}>
+        {errorText}
+      </DescTypography>
+    ) : hint ? (
       <DescTypography sx={{ fontSize: 12, color: 'rgba(0,0,0,0.5)', mt: 0.75 }}>
         {hint}
       </DescTypography>

@@ -15,7 +15,7 @@ import IconExpand from '@/App/components/icon/IconExpand';
 import IconTrash from '@/App/components/icon/IconTrash';
 
 type InstructionItemData = {
-  id: string;
+  id: number;
   title: string;
   body: string;
   open: boolean;
@@ -27,10 +27,10 @@ type InstructionItemProps = {
   item: InstructionItemData;
   index: number;
   total: number;
-  onUpdate: (id: string, patch: Partial<InstructionItemData>) => void;
-  onDelete: (id: string) => void;
-  onMove: (id: string, dir: number) => void;
-  onToggle: (id: string) => void;
+  onUpdate: (id: number, patch: Partial<InstructionItemData>) => void;
+  onDelete: (id: number) => void;
+  onMove: (id: number, dir: number) => void;
+  onToggle: (id: number) => void;
   isDragging: boolean;
   isOver: boolean;
   dragPos: DragPosition;
@@ -39,6 +39,7 @@ type InstructionItemProps = {
   onDragOver: (event: DragEvent<HTMLDivElement>) => void;
   onDragLeave: (event: DragEvent<HTMLDivElement>) => void;
   onDrop: (event: DragEvent<HTMLDivElement>) => void;
+  readOnly?: boolean;
 };
 
 const outlineBtnSx = {
@@ -86,6 +87,7 @@ const InstructionItem = ({
   onDragOver,
   onDragLeave,
   onDrop,
+  readOnly = false,
 }: InstructionItemProps) => {
   const titleLen = item.title.length;
   const bodyLen = item.body.length;
@@ -151,9 +153,9 @@ const InstructionItem = ({
       >
         <InsTooltip title="Перетащите, чтобы изменить порядок">
           <InsBox
-            draggable
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+            draggable={!readOnly}
+            onDragStart={readOnly ? undefined : onDragStart}
+            onDragEnd={readOnly ? undefined : onDragEnd}
             sx={{
               width: 34,
               height: 34,
@@ -163,15 +165,15 @@ const InstructionItem = ({
               alignItems: 'center',
               justifyContent: 'center',
               color: 'rgba(0,0,0,0.45)',
-              cursor: 'grab',
+              cursor: readOnly ? 'default' : 'grab',
               bgcolor: '#fff',
               transition: 'all 120ms ease',
               '&:hover': {
-                borderColor: 'rgb(255,182,39)',
-                color: '#000',
-                bgcolor: 'rgba(255,182,39,0.08)',
+                borderColor: readOnly ? 'rgba(0,0,0,0.12)' : 'rgb(255,182,39)',
+                color: readOnly ? 'rgba(0,0,0,0.45)' : '#000',
+                bgcolor: readOnly ? '#fff' : 'rgba(255,182,39,0.08)',
               },
-              '&:active': { cursor: 'grabbing' },
+              '&:active': { cursor: readOnly ? 'default' : 'grabbing' },
             }}
           >
             <IconDrag />
@@ -202,7 +204,7 @@ const InstructionItem = ({
           <InsTooltip title="Вверх">
             <span>
               <InsIconButton
-                disabled={index === 0}
+                disabled={readOnly || index === 0}
                 onClick={() => onMove(item.id, -1)}
                 sx={outlineBtnSx}
               >
@@ -213,7 +215,7 @@ const InstructionItem = ({
           <InsTooltip title="Вниз">
             <span>
               <InsIconButton
-                disabled={index === total - 1}
+                disabled={readOnly || index === total - 1}
                 onClick={() => onMove(item.id, 1)}
                 sx={outlineBtnSx}
               >
@@ -285,6 +287,11 @@ const InstructionItem = ({
               placeholder="Например: Как добавить улей"
               value={item.title}
               onChange={(event) => onUpdate(item.id, { title: event.target.value.slice(0, 100) })}
+              slotProps={{
+                htmlInput: {
+                  readOnly,
+                },
+              }}
             />
           </InsBox>
           <InsBox>
@@ -307,6 +314,11 @@ const InstructionItem = ({
               placeholder="Подробно опишите шаг…"
               value={item.body}
               onChange={(event) => onUpdate(item.id, { body: event.target.value.slice(0, 1000) })}
+              slotProps={{
+                htmlInput: {
+                  readOnly,
+                },
+              }}
             />
           </InsBox>
         </InsBox>
