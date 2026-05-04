@@ -21,6 +21,9 @@ type UnderlineTextFieldProps = {
   autoComplete?: string;
   type?: string;
   endAdornment?: ReactNode;
+  multiline?: boolean;
+  minRows?: number;
+  maxRows?: number;
 };
 
 type ValidatedTextFieldProps = UnderlineTextFieldProps & {
@@ -53,19 +56,22 @@ export const UnderlineTextField = ({
   autoComplete,
   type = 'text',
   endAdornment,
+  multiline = false,
+  minRows,
+  maxRows,
 }: UnderlineTextFieldProps) => {
   const theme = useTheme();
-  const inputTypography = theme.typography.body2;
+  const inputTypography = theme.typography.caption;
 
   return (
     <Box
       sx={{
         display: 'flex',
         alignItems: 'center',
-        gap: 1,
-        minHeight: 54,
+        gap: 0.5,
+        minHeight: 52,
         paddingX: 1,
-        paddingY: 1.5,
+        paddingY: 1,
         borderBottom: '2px solid',
         borderColor: error ? 'error.main' : 'primary.main',
         transition: 'border-color 100ms ease',
@@ -86,11 +92,14 @@ export const UnderlineTextField = ({
         name={name}
         autoComplete={autoComplete}
         type={type}
+        multiline={multiline}
+        minRows={minRows}
+        maxRows={maxRows}
         sx={{
           color: 'text.primary',
           '& .MuiInputBase-input': {
             fontSize: inputTypography.fontSize,
-            lineHeight: inputTypography.lineHeight,
+            lineHeight: inputTypography.lineHeight ?? 1.4,
             fontWeight: inputTypography.fontWeight,
             fontFamily: inputTypography.fontFamily,
             padding: 0,

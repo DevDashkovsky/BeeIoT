@@ -1,14 +1,33 @@
-import { createBrowserRouter, Navigate, redirect } from 'react-router-dom';
+import { type ReactNode } from 'react';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import App from '@/App';
-import AuthPage from '@/App/pages/AuthPage';
+import AdminPage from '@/App/pages/AdminPage';
+import DescriptionPage from '@/App/pages/DescriptionPage';
+import InstructionPage from '@/App/pages/InstructionPage';
+import LoginPage from '@/App/pages/LoginPage';
 import NotFoundPage from '@/App/pages/NotFoundPage';
+import { useAuth } from '@/App/providers/AuthProvider';
 import FullScreenLoader from '@/components/FullScreenLoader/FullScreenLoader';
 import RouterErrorBoundary from '@/components/RouterErrorBoundary/RouterErrorBoundary';
-import { sessionQueryOptions } from '@/hooks/queries/useSessionQuery';
-import { useAuthStore } from '@/store/useAuthStore';
 
-import { queryClient } from './queryClient';
+const RequireAuth = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  return children;
+};
+
+const HomeRedirect = () => {
+  const { user } = useAuth();
+  return <Navigate to={user ? '/admin/description' : '/auth'} replace />;
+};
+
+const AuthRedirect = () => {
+  const { user } = useAuth();
+  return user ? <Navigate to="/admin/description" replace /> : <LoginPage />;
+};
 
 export const router = createBrowserRouter([
   {
@@ -16,31 +35,20 @@ export const router = createBrowserRouter([
     element: <App />,
     hydrateFallbackElement: <FullScreenLoader />,
     children: [
-      { index: true, element: <Navigate to="/auth" replace /> },
-      { path: 'auth', element: <AuthPage /> },
+      { index: true, element: <HomeRedirect /> },
+      { path: 'auth', element: <AuthRedirect /> },
       {
-        id: 'protected',
-        loader: async () => {
-          const token = useAuthStore.getState().token;
-          if (!token) {
-            throw redirect('/auth');
-          }
-          try {
-            await queryClient.ensureQueryData(sessionQueryOptions());
-          } catch {
-            throw redirect('/auth');
-          }
-          return null;
-        },
+        path: 'admin',
+        element: (
+          <RequireAuth>
+            <AdminPage />
+          </RequireAuth>
+        ),
         errorElement: <RouterErrorBoundary />,
         children: [
-          {
-            path: 'admin',
-            lazy: async () => {
-              const { default: AdminPage } = await import('@/App/pages/AdminPage');
-              return { Component: AdminPage };
-            },
-          },
+          { index: true, element: <Navigate to="description" replace /> },
+          { path: 'description', element: <DescriptionPage /> },
+          { path: 'instruction', element: <InstructionPage /> },
         ],
       },
       { path: '*', element: <NotFoundPage /> },
