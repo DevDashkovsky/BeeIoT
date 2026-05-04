@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Alert,
   Box,
@@ -9,35 +10,80 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import EyeIcon from '@/App/components/icon/EyeIcon';
 import HiveLogo from '@/App/components/icon/HiveLogo';
-import { useAuth } from '@/App/providers/AuthProvider';
+import { useSignInMutation } from '@/hooks/mutations/useSignInMutation';
+import { useAuthStore } from '@/store/useAuthStore';
+
+const loginSchema = z.object({
+  email: z.string().min(1, 'Введите email').email('Некорректный email'),
+  password: z.string().min(1, 'Введите пароль'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
+const getLoginErrorMessage = (error: unknown) => {
+  const maybeError = error as { response?: { data?: unknown; status?: number } };
+  const data = maybeError.response?.data;
+  if (typeof data === 'string' && data.trim()) {
+    return data;
+  }
+  if (data && typeof data === 'object') {
+    const message = (data as { message?: unknown }).message;
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+  }
+  if (maybeError.response?.status) {
+    return `Не удалось войти (код ${maybeError.response.status})`;
+  }
+  return 'Не удалось войти. Проверьте данные и повторите.';
+};
 
 const LoginPage = () => {
-  const { signIn } = useAuth();
+  const signIn = useAuthStore((state) => state.signIn);
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@beeiot.app');
-  const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const isDev = import.meta.env.DEV;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError('');
-    if (!email || !password) {
-      setError('Введите email и пароль');
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      signIn({ email });
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors, isValid },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: 'admin@beeiot.app',
+      password: '',
+    },
+    mode: 'onChange',
+  });
+
+  const signInMutation = useSignInMutation({
+    onSuccess: (response, variables) => {
+      signIn({ email: variables.email }, response.data.token);
       navigate('/admin/description', { replace: true });
-    }, 700);
+    },
+    onError: (error) => {
+      setError('root', { message: getLoginErrorMessage(error) });
+    },
+  });
+
+  const onSubmit = (values: LoginFormData) => {
+    clearErrors('root');
+    signInMutation.mutate(values);
+  };
+
+  const handleDevLogin = () => {
+    signIn({ email: 'dev@beeiot.app' }, 'dev-token');
+    navigate('/admin/description', { replace: true });
   };
 
   return (
@@ -78,7 +124,7 @@ const LoginPage = () => {
           </Typography>
         </Box>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box>
               <Typography
@@ -91,9 +137,10 @@ const LoginPage = () => {
                 fullWidth
                 size="medium"
                 placeholder="admin@example.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
                 autoComplete="email"
+                error={Boolean(errors.email)}
+                helperText={errors.email?.message ?? ' '}
+                {...register('email')}
               />
             </Box>
 
@@ -109,9 +156,9 @@ const LoginPage = () => {
                 size="medium"
                 type={showPwd ? 'text' : 'password'}
                 placeholder="••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
+                error={Boolean(errors.password)}
+                helperText={errors.password?.message ?? ' '}
                 slotProps={{
                   input: {
                     endAdornment: (
@@ -127,20 +174,15 @@ const LoginPage = () => {
                     ),
                   },
                 }}
+                {...register('password')}
               />
             </Box>
-
-            {error ? (
-              <Alert severity="error" sx={{ borderRadius: 2 }}>
-                {error}
-              </Alert>
-            ) : null}
 
             <Button
               type="submit"
               variant="outlined"
               size="large"
-              disabled={loading}
+              disabled={signInMutation.isPending || !isValid}
               sx={{
                 mt: 1,
                 fontSize: 16,
@@ -163,8 +205,37 @@ const LoginPage = () => {
                 },
               }}
             >
-              {loading ? <CircularProgress size={22} sx={{ color: '#000' }} /> : 'Войти'}
+              {signInMutation.isPending ? (
+                <CircularProgress size={22} sx={{ color: '#000' }} />
+              ) : (
+                'Войти'
+              )}
             </Button>
+            {isDev ? (
+              <Button
+                type="button"
+                variant="text"
+                size="small"
+                onClick={handleDevLogin}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: 'rgba(0,0,0,0.55)',
+                  textTransform: 'none',
+                  px: 0,
+                  '&:hover': {
+                    color: '#000',
+                    bgcolor: 'transparent',
+                  },
+                }}
+              >
+                Dev-вход без сервера
+              </Button>
+            ) : null}
+            {errors.root?.message ? (
+              <Alert severity="error" sx={{ borderRadius: 2 }}>
+                {errors.root.message}
+              </Alert>
+            ) : null}
           </Box>
         </form>
 

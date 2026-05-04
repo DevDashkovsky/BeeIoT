@@ -2,10 +2,11 @@ import { Box } from '@mui/material';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import Sidebar, { type AdminPageId } from '@/App/components/Sidebar';
-import { useAuth } from '@/App/providers/AuthProvider';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const AdminPage = () => {
-  const { user, signOut } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const signOut = useAuthStore((state) => state.signOut);
   const location = useLocation();
   const navigate = useNavigate();
 
