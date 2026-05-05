@@ -20,6 +20,19 @@ export default defineConfig(({ mode }) => {
           target: proxyTarget,
           changeOrigin: true,
           secure: false,
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq, req) => {
+              console.log(`[proxy] --> ${req.method} ${req.url}  =>  ${proxyTarget}${req.url}`);
+            });
+            proxy.on('proxyRes', (proxyRes, req) => {
+              console.log(`[proxy] <-- ${proxyRes.statusCode} ${req.url}`);
+            });
+            proxy.on('error', (err, req) => {
+              console.error(`[proxy] ERROR on ${req.url}:`, err.message);
+              console.error(`[proxy] Target: ${proxyTarget}`);
+              console.error(`[proxy] Code: ${(err as NodeJS.ErrnoException).code}`);
+            });
+          },
         },
       },
     },

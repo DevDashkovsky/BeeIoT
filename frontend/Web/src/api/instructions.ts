@@ -1,4 +1,5 @@
 import { api } from '@/config/api';
+import type { ApiResponse } from '@/types/authType';
 import type {
   CreateInstructionRequest,
   CreateInstructionResponse,
@@ -7,8 +8,8 @@ import type {
 
 // GET /instructions/list
 export const fetchInstructions = async (signal?: AbortSignal): Promise<InstructionItem[]> => {
-  const response = await api.get<InstructionItem[]>('/instructions/list', { signal });
-  return response.data;
+  const response = await api.get<ApiResponse<InstructionItem[]>>('/instructions/list', { signal });
+  return response.data.data;
 };
 
 // POST /instructions/create
