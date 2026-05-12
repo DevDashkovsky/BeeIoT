@@ -62,4 +62,4 @@ Thumbs.db
 *.swo
 
 # --- Env files ---
-*.env
+#*.env
