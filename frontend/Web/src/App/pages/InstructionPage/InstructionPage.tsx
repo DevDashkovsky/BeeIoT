@@ -75,33 +75,47 @@ const InstructionPage = () => {
   const [initialItems, setInitialItems] = insUseState<InstructionSnapshot[]>([]);
   const [deletedIds, setDeletedIds] = insUseState<string[]>([]);
   const [saving, setSaving] = insUseState(false);
-  const [initialized, setInitialized] = insUseState(false);
-  const [syncFromServer, setSyncFromServer] = insUseState(false);
   const [draggingId, setDraggingId] = insUseState<string | null>(null);
   const [overInfo, setOverInfo] = insUseState<DragOverInfo>({ id: null, pos: null });
 
   const listEndRef = useRef<HTMLDivElement | null>(null);
+  const itemsRef = useRef<InstructionItemData[]>([]);
+  const dirtyRef = useRef(false);
+  const lastDataUpdatedAtRef = useRef(0);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError } = useInstructionsQuery();
+  const { data, dataUpdatedAt, isLoading, isError } = useInstructionsQuery();
 
   useEffect(() => {
-    if (data === undefined || (initialized && !syncFromServer)) {
+    itemsRef.current = items;
+  }, [items]);
+
+  const dirty =
+    deletedIds.length > 0 || JSON.stringify(toSnapshot(items)) !== JSON.stringify(initialItems);
+
+  useEffect(() => {
+    dirtyRef.current = dirty;
+  }, [dirty]);
+
+  useEffect(() => {
+    if (data === undefined) {
+      return;
+    }
+    if (dirtyRef.current) {
+      return;
+    }
+    if (dataUpdatedAt === lastDataUpdatedAtRef.current) {
       return;
     }
 
-    const openMap = new Map(items.map((item) => [item.id, item.open]));
+    lastDataUpdatedAtRef.current = dataUpdatedAt;
+    const openMap = new Map(itemsRef.current.map((item) => [item.id, item.open]));
     const nextItems = mapServerItems(data, openMap);
 
     setItems(nextItems);
     setInitialItems(toSnapshot(nextItems));
     setDeletedIds([]);
-    setInitialized(true);
-    setSyncFromServer(false);
-  }, [data, initialized, items, syncFromServer]);
-
-  const dirty =
-    deletedIds.length > 0 || JSON.stringify(toSnapshot(items)) !== JSON.stringify(initialItems);
+  }, [data, dataUpdatedAt]);
 
   const expandAll = () => setItems((prev) => prev.map((item) => ({ ...item, open: true })));
 
@@ -291,7 +305,6 @@ const InstructionPage = () => {
       setDeletedIds([]);
       setSnack({ severity: 'success', text: 'Изменения сохранены' });
 
-      setSyncFromServer(true);
       await queryClient.invalidateQueries({ queryKey: ['instruction-items', 'admin'] });
     } catch (error) {
       setSnack({
@@ -309,7 +322,7 @@ const InstructionPage = () => {
     fg: 'rgb(120,80,0)',
   };
 
-  if (isLoading && !initialized) {
+  if (isLoading && data === undefined) {
     return <FullScreenLoader />;
   }
 
