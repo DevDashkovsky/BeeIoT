@@ -1,15 +1,25 @@
 export type InstructionItem = {
-  id: number;
+  id: string;
   title: string;
-  content: string;
-  created_at: number;
+  body: string;
+  numbered: boolean;
+  position: number;
+  updated_at: string;
 };
 
-export type CreateInstructionRequest = {
+export type CreateInstructionItemRequest = {
   title: string;
-  content: string;
+  body: string;
+  numbered: boolean;
+  position?: number;
 };
 
-export type CreateInstructionResponse = {
-  id: number;
+export type UpdateInstructionItemRequest = {
+  title?: string;
+  body?: string;
+  numbered?: boolean;
+};
+
+export type ReorderInstructionItemsRequest = {
+  order: string[];
 };
