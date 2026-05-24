@@ -40,7 +40,9 @@ import com.app.mobile.di.screens.settingsModule
 import com.app.mobile.di.screens.workDetailModule
 import com.app.mobile.di.screens.workEditorModule
 import com.app.mobile.di.screens.workListModule
+import com.app.mobile.di.queenCalendarModule
 import com.app.mobile.di.sessionModule
+import com.app.mobile.domain.repository.notifications.QueenCalendarScheduler
 import com.app.mobile.presentation.notifications.NotificationChannelsInitializer
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -94,6 +96,7 @@ class MobileApp : Application() {
 				homeModule,
 				notificationsListModule,
 				notificationsModule,
+				queenCalendarModule,
 				themeModule,
 				mainModule,
 				firebaseModule
@@ -103,6 +106,7 @@ class MobileApp : Application() {
 		// Каналы уведомлений нужно создавать при каждом старте процесса,
 		// в том числе когда процесс поднят FCM в фоне для доставки пуша.
 		koinApp.koin.get<NotificationChannelsInitializer>().createChannels()
+		koinApp.koin.get<QueenCalendarScheduler>().schedule()
 
 		// TODO: временный лог FCM-токена для тестирования пушей — убрать перед релизом
 		FirebaseMessaging.getInstance().token

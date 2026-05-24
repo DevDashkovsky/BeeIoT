@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.content.ContextCompat
 import com.app.mobile.R
 
 const val NOTIFICATION_THRESHOLD = 2
@@ -48,10 +50,13 @@ fun createNotification(
 		PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 	)
 
+	val largeBitmap = ContextCompat.getDrawable(context, R.drawable.ic_logo)?.toBitmap()
+
 	val builder = NotificationCompat.Builder(context, channelId)
 		.setContentTitle(title)
 		.setContentText(body)
-		.setSmallIcon(R.drawable.ic_logo)
+		.setSmallIcon(R.drawable.ic_notification)
+		.setLargeIcon(largeBitmap)
 		.setStyle(NotificationCompat.BigTextStyle().bigText(body))
 		.setPriority(priority)
 		.setCategory(category)
